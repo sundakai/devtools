@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java toString() 转 JSON 在线工具</title>
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .card-header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.4rem;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .tools {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success {
+            background: #27ae60;
+        }
+        
+        .btn-success:hover {
+            background: #219653;
+        }
+        
+        .btn-purple {
+            background: #8e44ad;
+        }
+        
+        .btn-purple:hover {
+            background: #7d3c98;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 500px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            background: #f8f9fa;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .editor-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .editor-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .tools {
+                flex-direction: column;
+            }
+            
+            .btn-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        .output-container {
+            position: relative;
+        }
+        
+        #copyBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+        
+        .example-link {
+            color: #3498db;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-code"></i> Java toString() 转 JSON 在线工具</h1>
+            <p>将Java实体类的toString()输出快速转换为格式化的JSON数据，支持嵌套对象和数组解析</p>
+        </header>
+        
+        <main>
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-tools"></i> 转换工具</h2>
+                    <div>
+                        <button class="btn btn-purple" id="exampleBtn">
+                            <i class="fas fa-file-code"></i> 加载示例
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="tools">
+                        <div>
+                            <button class="btn" id="convertBtn">
+                                <i class="fas fa-exchange-alt"></i> 转换为JSON
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn" id="clearInputBtn">
+                                <i class="fas fa-eraser"></i> 清空输入
+                            </button>
+                            <button class="btn" id="clearOutputBtn">
+                                <i class="fas fa-trash"></i> 清空输出
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="editor-container">
+                        <div class="input-container">
+                            <textarea id="input" placeholder="粘贴Java toString()输出内容...">message(dataSource=ali, message=[Message(age=13, name=狗蛋)])</textarea>
+                        </div>
+                        
+                        <div class="output-container">
+                            <textarea id="output" placeholder="JSON输出将显示在这里..." readonly></textarea>
+                            <button class="btn btn-success" id="copyBtn">
+                                <i class="fas fa-copy"></i> 复制JSON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div class="notification" id="notification">内容已复制到剪贴板！</div>
+        
+        <footer>
+            <p>&copy; Java toString() 转 JSON 在线工具 | 支持多层嵌套对象和数组解析</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const input = document.getElementById('input');
+            const output = document.getElementById('output');
+            const convertBtn = document.getElementById('convertBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const clearInputBtn = document.getElementById('clearInputBtn');
+            const clearOutputBtn = document.getElementById('clearOutputBtn');
+            const exampleBtn = document.getElementById('exampleBtn');
+            const notification = document.getElementById('notification');
+            
+            // 转换函数
+            function convertToString() {
+                const inputStr = input.value.trim();
+                if (!inputStr) {
+                    output.value = "请输入Java toString()内容";
+                    return;
+                }
+                
+                try {
+                    const jsonResult = parseJavaToString(inputStr);
+                    output.value = JSON.stringify(jsonResult, null, 2);
+                } catch (error) {
+                    output.value = `转换错误: ${error.message}`;
+                }
+            }
+            
+            // Java toString解析器
+            function parseJavaToString(str) {
+                str = str.trim();
+                
+                if (str.startsWith('[')) {
+                    return parseArray(str);
+                } else {
+                    return parseObject(str);
+                }
+            }
+            
+            // 解析对象
+            function parseObject(objStr) {
+                const firstParen = objStr.indexOf('(');
+                if (firstParen === -1) {
+                    return {};
+                }
+                
+                const className = objStr.substring(0, firstParen);
+                const content = objStr.substring(firstParen + 1, objStr.length - 1);
+                
+                const tokens = splitTokens(content);
+                const obj = {};
+                
+                for (const token of tokens) {
+                    if (!token) continue;
+                    
+                    const eqIndex = token.indexOf('=');
+                    if (eqIndex === -1) {
+                        obj[token] = null;
+                    } else {
+                        const key = token.substring(0, eqIndex).trim();
+                        const valueStr = token.substring(eqIndex + 1).trim();
+                        obj[key] = parseValue(valueStr);
+                    }
+                }
+                
+                return obj;
+            }
+            
+            // 解析数组
+            function parseArray(arrStr) {
+                const content = arrStr.substring(1, arrStr.length - 1).trim();
+                if (!content) {
+                    return [];
+                }
+                
+                const tokens = splitTokens(content);
+                return tokens.map(token => parseValue(token.trim()));
+            }
+            
+            // 解析值
+            function parseValue(valueStr) {
+                valueStr = valueStr.trim();
+                
+                // 处理数组
+                if (valueStr.startsWith('[') && valueStr.endsWith(']')) {
+                    return parseArray(valueStr);
+                }
+                
+                // 处理嵌套对象
+                if (valueStr.includes('(') && valueStr.endsWith(')')) {
+                    const firstParen = valueStr.indexOf('(');
+                    const lastParen = valueStr.lastIndexOf(')');
+                    
+                    if (firstParen !== -1 && lastParen === valueStr.length - 1) {
+                        return parseObject(valueStr);
+                    }
+                }
+                
+                // 处理null
+                if (valueStr === 'null') {
+                    return null;
+                }
+                
+                // 处理布尔值
+                if (valueStr === 'true') return true;
+                if (valueStr === 'false') return false;
+                
+                // 处理数字
+                if (/^-?\d+(\.\d+)?$/.test(valueStr)) {
+                    return parseFloat(valueStr);
+                }
+                
+                // 处理日期格式
+                if (/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}\.\d{3})?$/.test(valueStr)) {
+                    return valueStr;
+                }
+                
+                // 默认返回字符串
+                return valueStr;
+            }
+            
+            // 分割键值对
+            function splitTokens(str) {
+                const tokens = [];
+                let start = 0;
+                let depth = 0;
+                
+                for (let i = 0; i < str.length; i++) {
+                    const char = str[i];
+                    
+                    if (char === '(' || char === '[') {
+                        depth++;
+                    } else if (char === ')' || char === ']') {
+                        depth--;
+                    } else if (char === ',' && depth === 0) {
+                        tokens.push(str.substring(start, i).trim());
+                        start = i + 1;
+                    }
+                }
+                
+                tokens.push(str.substring(start).trim());
+                return tokens;
+            }
+            
+            // 复制到剪贴板
+            function copyToClipboard() {
+                if (!output.value) return;
+                
+                output.select();
+                document.execCommand('copy');
+                
+                // 显示通知
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            }
+            
+            // 加载示例
+            function loadExample() {
+                input.value = `message(dataSource=ali, message=[Message(age=13, name=狗蛋)])`;
+                convertToString();
+            }
+            
+            // 事件监听
+            convertBtn.addEventListener('click', convertToString);
+            copyBtn.addEventListener('click', copyToClipboard);
+            clearInputBtn.addEventListener('click', () => { input.value = ''; });
+            clearOutputBtn.addEventListener('click', () => { output.value = ''; });
+            exampleBtn.addEventListener('click', loadExample);
+            
+            // 初始化
+            convertToString();
+        });
+    </script>
+</body>
+</html>
